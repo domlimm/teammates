@@ -1,6 +1,5 @@
 package teammates.ui.webapi;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import teammates.common.datatransfer.attributes.FeedbackQuestionAttributes;
