@@ -182,7 +182,6 @@ public class FeedbackQuestionsLogicTest extends BaseTestCase {
         List<FeedbackQuestion> expectedQuestions = List.of(fq1, fq2);
 
         List<FeedbackQuestion> actualQuestions = fqLogic.getFeedbackQuestionsForStudents(fs);
-
         assertEquals(expectedQuestions.size(), actualQuestions.size());
         assertTrue(actualQuestions.containsAll(actualQuestions));
     }
@@ -197,7 +196,6 @@ public class FeedbackQuestionsLogicTest extends BaseTestCase {
         List<FeedbackQuestion> expectedQuestions = List.of(fq3, fq4, fq5);
 
         List<FeedbackQuestion> actualQuestions = fqLogic.getFeedbackQuestionsForInstructors(fs, "instr1@teammates.tmt");
-
         assertEquals(expectedQuestions.size(), actualQuestions.size());
         assertTrue(actualQuestions.containsAll(actualQuestions));
     }
