@@ -35,8 +35,6 @@ public class UsersDbIT extends BaseTestCaseWithSqlDatabaseAccess {
     private final AccountsDb accountsDb = AccountsDb.inst();
 
     private Course course;
-    private Section section;
-    private Team team;
     private Instructor instructor;
     private Student student;
 
@@ -46,10 +44,6 @@ public class UsersDbIT extends BaseTestCaseWithSqlDatabaseAccess {
         super.setUp();
 
         course = new Course("course-id", "course-name", Const.DEFAULT_TIME_ZONE, "institute");
-        section = new Section(course, "section-name");
-        course.addSection(section);
-        team = new Team(section, "team-name");
-        section.addTeam(team);
         coursesDb.createCourse(course);
 
         Account instructorAccount = new Account("instructor-account", "instructor-name", "valid-instructor@email.tmt");
