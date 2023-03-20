@@ -1,8 +1,12 @@
 package teammates.sqllogic.core;
 
+import java.util.List;
+import java.util.UUID;
+
 import teammates.common.datatransfer.FeedbackParticipantType;
 import teammates.storage.sqlapi.FeedbackResponsesDb;
 import teammates.storage.sqlentity.FeedbackQuestion;
+import teammates.storage.sqlentity.FeedbackResponse;
 
 /**
  * Handles operations related to feedback sessions.
@@ -14,7 +18,9 @@ public final class FeedbackResponsesLogic {
 
     private static final FeedbackResponsesLogic instance = new FeedbackResponsesLogic();
 
-    // private FeedbackResponsesDb frDb;
+    private FeedbackResponsesDb frDb;
+
+    private FeedbackResponseCommentsLogic feedbackResponseCommentsLogic;
 
     private FeedbackResponsesLogic() {
         // prevent initialization
@@ -27,8 +33,10 @@ public final class FeedbackResponsesLogic {
     /**
      * Initialize dependencies for {@code FeedbackResponsesLogic}.
      */
-    void initLogicDependencies(FeedbackResponsesDb frDb) {
-        // this.frDb = frDb;
+    void initLogicDependencies(FeedbackResponsesDb frDb,
+            FeedbackResponseCommentsLogic feedbackResponseCommentsLogic) {
+        this.frDb = frDb;
+        this.feedbackResponseCommentsLogic = feedbackResponseCommentsLogic;
     }
 
     /**
@@ -63,5 +71,55 @@ public final class FeedbackResponsesLogic {
      */
     public boolean isResponseOfFeedbackQuestionVisibleToInstructor(FeedbackQuestion question) {
         return question.isResponseVisibleTo(FeedbackParticipantType.INSTRUCTORS);
+    }
+
+    /**
+     * Deletes all feedback responses involved an entity, cascade its associated comments.
+     */
+    public void deleteFeedbackResponsesInvolvedEntityOfCourseCascade(String courseId, String entityEmail) {
+        // delete responses from the entity
+        List<FeedbackResponse> responsesFromStudent =
+                getFeedbackResponsesFromGiverForCourse(courseId, entityEmail);
+        for (FeedbackResponse response : responsesFromStudent) {
+            deleteFeedbackResponseCascade(response.getId());
+        }
+
+        // delete responses to the entity
+        List<FeedbackResponse> responsesToStudent =
+                getFeedbackResponsesForReceiverForCourse(courseId, entityEmail);
+        for (FeedbackResponse response : responsesToStudent) {
+            deleteFeedbackResponseCascade(response.getId());
+        }
+    }
+
+    /**
+     * Gets all responses given by a user for a course.
+     */
+    public List<FeedbackResponse> getFeedbackResponsesFromGiverForCourse(
+            String courseId, String giver) {
+        assert courseId != null;
+        assert giver != null;
+
+        return frDb.getFeedbackResponsesFromGiverForCourse(courseId, giver);
+    }
+
+    /**
+     * Gets all responses received by a user for a course.
+     */
+    public List<FeedbackResponse> getFeedbackResponsesForReceiverForCourse(
+            String courseId, String receiver) {
+        assert courseId != null;
+        assert receiver != null;
+
+        return frDb.getFeedbackResponsesForReceiverForCourse(courseId, receiver);
+    }
+
+    /**
+     * Deletes a feedback response, cascade its associated comments.
+     */
+    public void deleteFeedbackResponseCascade(UUID responseId) {
+        FeedbackResponse feedbackResponseToDelete = frDb.getFeedbackResponse(responseId);
+
+        frDb.deleteFeedbackResponse(feedbackResponseToDelete);
     }
 }
