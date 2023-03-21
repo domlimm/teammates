@@ -35,6 +35,7 @@ public final class FeedbackQuestionsLogic {
     private FeedbackQuestionsDb fqDb;
     private CoursesLogic coursesLogic;
     private UsersLogic usersLogic;
+    private FeedbackSessionsLogic feedbackSessionsLogic;
 
     private FeedbackQuestionsLogic() {
         // prevent initialization
@@ -44,10 +45,12 @@ public final class FeedbackQuestionsLogic {
         return instance;
     }
 
-    void initLogicDependencies(FeedbackQuestionsDb fqDb, CoursesLogic coursesLogic, UsersLogic usersLogic) {
+    void initLogicDependencies(FeedbackQuestionsDb fqDb, CoursesLogic coursesLogic, UsersLogic usersLogic
+            FeedbackSessionsLogic feedbackSessionsLogic) {
         this.fqDb = fqDb;
         this.coursesLogic = coursesLogic;
         this.usersLogic = usersLogic;
+        this.feedbackSessionsLogic = feedbackSessionsLogic;
     }
 
     /**
@@ -333,5 +336,22 @@ public final class FeedbackQuestionsLogic {
             feedbackMsqQuestionDetails.setMsqChoices(optionList);
             ((FeedbackMsqQuestion) feedbackQuestion).setFeedBackQuestionDetails(feedbackMsqQuestionDetails);
         }
+    }
+
+    /**
+     * Filters the feedback questions in a course, with specified question type.
+     * @param courseId the course to search from
+     * @param questionType the question type to search on
+     * @return a list of filtered questions
+     */
+    public List<FeedbackQuestion> getFeedbackQuestionForCourseWithType(
+            String courseId, FeedbackQuestionType questionType) {
+        List<FeedbackSession> feedbackSessions = feedbackSessionsLogic.getFeedbackSessionsForCourse(courseId);
+        List<FeedbackQuestion> feedbackQuestions = new ArrayList<>();
+
+        for (FeedbackSession session : feedbackSessions) {
+            feedbackQuestions.addAll(getFeedbackQuestionsForSession(session.getName(), courseId));
+        }
+        return feedbackQuestions.stream().filter(q -> q.getQuestionType().equals(questionType)).collect(Collectors.toList());
     }
 }

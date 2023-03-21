@@ -425,4 +425,8 @@ public class FeedbackSession extends BaseEntity {
         return now.isAfter(publishTime) || now.equals(publishTime);
     }
 
+    public boolean isSessionDeleted() {
+        return this.deletedAt != null;
+    }
+
 }

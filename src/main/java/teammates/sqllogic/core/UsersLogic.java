@@ -32,6 +32,10 @@ public final class UsersLogic {
 
     private FeedbackResponsesLogic feedbackResponsesLogic;
 
+    private FeedbackSessionsLogic feedbackSessionsLogic;
+
+    private DeadlineExtensionsLogic deadlineExtensionsLogic;
+
     private UsersLogic() {
         // prevent initialization
     }
@@ -41,10 +45,13 @@ public final class UsersLogic {
     }
 
     void initLogicDependencies(UsersDb usersDb, AccountsLogic accountsLogic,
-            FeedbackResponsesLogic feedbackResponsesLogic) {
+            FeedbackResponsesLogic feedbackResponsesLogic, FeedbackSessionsLogic feedbackSessionsLogic,
+            DeadlineExtensionsLogic deadlineExtensionsLogic) {
         this.usersDb = usersDb;
         this.accountsLogic = accountsLogic;
         this.feedbackResponsesLogic = feedbackResponsesLogic;
+        this.feedbackSessionsLogic = feedbackSessionsLogic;
+        this.deadlineExtensionsLogic = deadlineExtensionsLogic;
     }
 
     /**
@@ -261,7 +268,14 @@ public final class UsersLogic {
         }
 
         usersDb.deleteUser(student);
-        
+        feedbackSessionsLogic.deleteFeedbackSessionsDeadlinesForStudent(courseId, studentEmail);
+        deadlineExtensionsLogic.deleteDeadlineExtensions(courseId, studentEmail, false);
+
+        updateStudentResponsesAfterDeletion(courseId);
+    }
+
+    private void updateStudentResponsesAfterDeletion(String courseId) {
+        feedbackResponsesLogic.updateFeedbackResponsesForDeletingStudent(courseId);
     }
 
     /**
